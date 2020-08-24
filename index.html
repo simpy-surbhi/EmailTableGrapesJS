@@ -1,0 +1,138 @@
+<html>
+<body> 
+  <input type="hidden" id="emailHtml" name="HtmlDesign"><br>
+  <input type="hidden" id="emailCSS" name="cssDesign" >
+  <input type="hidden" id="emailStyle" name="styleDesign"><br><br>
+  <input type="submit" class="btn btn-primary" style="margin-top: -50px;width: 7%;float: right;margin-right: 104px;" onclick="submitClick()" value="Submit">
+  <input type="cancel" class="btn btn-primary" style="margin-top: -50px;width: 7%;margin-left: 68%;" onclick="Cancelclick()" value="Cancel">
+  <input type="cancel" class="btn btn-primary" style="margin-top: -50px;width: 7%;margin-left: 77%;" onclick="Backclick()" value="Mail List">
+
+<link href="grapesjs-dev/dist/css/grapes.min.css" rel="stylesheet" />
+<link href="grapesjs-preset-newsletter-master/dist/grapesjs-preset-newsletter.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<script src="grapesjs-dev/dist/grapes.min.js"></script>
+<script src="grapesjs-preset-newsletter-master/dist/grapesjs-preset-newsletter.min.js"></script>
+
+<div id="gjs"></div>
+<script type="text/javascript">
+
+  var editor = grapesjs.init
+    ({
+      height: '100%',
+      fromElement: 1,
+      clearOnRender: true,
+      container: '#gjs',
+      plugins: ['gjs-preset-newsletter'],
+      storageManager: {
+        autosave: false,
+        setStepsBeforeSave: 1,
+        type: 'remote',
+        /*urlStore: 'http://cimailer.dev/templates/template',
+        urlLoad: 'http://cimailer.dev/templates/template',*/
+        contentTypeJson: true,
+      },
+      
+  
+
+      assetManager: {
+      storageType  	: '',
+    	storeOnChange  : true,
+    	storeAfterUpload  : true,
+    	upload: 'http://localhost/MAILTODB/assets/upload',   
+      assets: [],
+				
+            
+       uploadFile: function(e) {
+         debugger;
+		var files = e.dataTransfer ? e.dataTransfer.files : e.target.files;
+    var formData = new FormData();
+		for(var i in files){
+    		    formData.append('file-'+i, files[i]) //containing all the selected images from local
+		}
+    $.ajax({
+url: 'Image.php',
+type: 'POST',
+			data: formData,
+			contentType:false,
+	crossDomain: true,
+	dataType: 'json',
+	mimeType: "multipart/form-data",
+	processData:false,
+	success: function(result){
+    console.log(result);
+    				var myJSON = [];
+    				$.each( result['data'], function( key, value ) {
+              console.log("key"+key+" value" +value);
+              console.log(value.src);
+        					myJSON[key] = value.src;    
+    				});
+    				var images = myJSON;    
+      		editor.AssetManager.add(images); //adding images to asset 
+	}
+});
+},
+       }
+    });
+   
+    const component1 = editor.addComponents(`<div style="background-color: cornsilk;"><br/>
+  <span title="foo" style="font-size: x-large;margin-left: 435px;">Default Mail Format!!!</span><br/><br/><br/>
+</div>`);
+    const component = editor.addComponents(`<div style="background-color: burlywood;">
+  <img style="height: 51%;width: 83%;margin-left: 95px;" src="https://cdn.britannica.com/84/73184-004-E5A450B5/Sunflower-field-Fargo-North-Dakota.jpg" />
+ 
+</div>`);
+
+const component2 = editor.addComponents(`<div style="background-color: cornsilk;"><h2 data-gjs-type="text">Seeds Good for You?</h2>
+
+ <p>Sunflower seeds are popular in trail mix, multi-grain bread and nutrition bars, as well as for snacking straight from the bag.They are rich in healthy fats, beneficial plant compounds and several vitamins and minerals.These nutrients may play a role in reducing your risk of common health problems, including heart disease and type 2 diabetes.Here's everything you need to know about sunflower seeds, including their nutrition, benefits and how to eat them.
+ </p>
+</div>`);
+
+
+  editor.on('storage:load', function (e) { console.log('Loaded ', e); });
+  editor.on('storage:store', function (e) { console.log('Stored ', e); }); 
+
+function Cancelclick(){
+  location.reload();
+}
+function Backclick(){
+  window.location.assign("List.php");
+}
+function submitClick(){
+var htmldata = editor.getHtml();
+          var cssdata = editor.getCss();
+          var htmlStl = JSON.stringify(editor.getStyle());
+          console.log(htmldata);
+          console.log(cssdata);
+          console.log(htmlStl);
+          if(htmldata!="" && cssdata!="" && htmlStl!=""){
+         debugger;
+$.ajax({
+				url: "Mail.php",
+				type: "POST",
+				data: {
+					htmlData: htmldata,
+					CSSData: cssdata,
+					StyleData: htmlStl				
+				},
+				
+			 success: function(dataResult){
+         	
+					alert("Saved in database"); 						
+				
+					
+				}
+			});
+		}
+		else{
+			alert('Please fill all the field !');
+		}
+      
+        
+} 
+</script>
+
+</body>
+</html>
